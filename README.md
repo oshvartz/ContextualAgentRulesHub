@@ -1,10 +1,42 @@
 # ContextualAgentRulesHub
 
-A Python-based data model system for managing and retrieving agent rules from multiple sources with support for language-specific filtering and tag-based categorization.
-
 ## Overview
 
-ContextualAgentRulesHub provides a flexible system for storing and retrieving agent rules that can be used by AI agents to follow context-specific guidelines. The system supports multiple source types and provides efficient querying capabilities.
+**ContextualAgentRulesHub is an MCP (Model Context Protocol) server** that provides a flexible system for storing and retrieving agent rules that can be used by AI agents to follow context-specific guidelines. The MCP server exposes tools for efficient rule discovery and content retrieval, enabling AI agents to access only the rules relevant to their current task.
+
+## Motivation
+
+Managing agent rules effectively can be challenging. Sharing rules across different agents or projects often leads to inconsistencies and difficulties in maintaining a centralized rule set. Furthermore, AI agents often operate with limited context windows. Sending a large, undifferentiated set of rules can consume valuable context space. AgentRulesHub aims to address these issues by:
+
+-   Providing a structured way to organize and access rules.
+-   Enabling agents to retrieve only the rules relevant to their current task, thus minimizing context length and improving efficiency.
+
+## Task Flow
+
+This section describes the typical flow of an AI agent interacting with the AgentRulesHub MCP server to retrieve and utilize rules for a given task.
+
+1.  **Task Initiation**: An agent (e.g., Cline) begins a new task.
+2.  **Retrieve Rule Index**: The agent queries the `rules-hub` MCP server using the `GetAllRulesMetadata` tool. This provides an index of all available rules, including their IDs, descriptions, languages, and tags.
+3.  **Identify Relevant Rules**: Based on the current task's context (e.g., programming language, keywords, objectives) and the metadata received, the agent analyzes the rule index to identify which rules are relevant.
+4.  **Retrieve Rule Content**: If relevant rules are identified, the agent uses the `GetRuleContentById` tool for each relevant rule ID to fetch its specific content.
+5.  **Utilize Rules**: The agent incorporates the content of the retrieved rules to guide its actions, improve its output, or ensure adherence to specific guidelines for the task at hand.
+
+```mermaid
+sequenceDiagram
+    participant Agent
+    participant RulesHubServer as "rules-hub MCP Server"
+
+    Agent->>RulesHubServer: 1. Request: GetAllRulesMetadata
+    RulesHubServer-->>Agent: 2. Response: Rules Index (Metadata)
+    Agent->>Agent: 3. Analyze Task & Identify Relevant Rules
+    alt Relevant Rules Found
+        loop For Each Relevant Rule
+            Agent->>RulesHubServer: 4. Request: GetRuleContentById (ruleId)
+            RulesHubServer-->>Agent: 5. Response: Rule Content
+        end
+    end
+    Agent->>Agent: 6. Utilize Rule Content for Task
+```
 
 ## Features
 
@@ -14,30 +46,6 @@ ContextualAgentRulesHub provides a flexible system for storing and retrieving ag
 - **Lazy Loading**: Rule content is loaded only when needed for optimal performance
 - **Flexible Querying**: Support for complex queries combining language, tags, and text search
 - **Tag-Based Organization**: Flexible categorization system with AND/OR logic support
-
-## Project Structure
-
-```
-ContextualAgentRulesHub/
-├── src/                          # Core implementation
-│   ├── models/                   # Data models
-│   │   ├── rule.py              # Rule entity model
-│   │   ├── source.py            # Source configuration model
-│   │   └── rule_index.py        # Rule indexing system
-│   ├── sources/                  # Source implementations
-│   │   ├── base.py              # Abstract source interface
-│   │   └── file_source.py       # YAML file source implementation
-│   └── repository/               # Repository layer
-│       └── rule_repository.py   # Main repository class
-├── rules/                        # Example rule storage
-│   ├── index.yaml               # Rule metadata index
-│   ├── python-pep8-standards.yaml
-│   ├── python-testing-guide.yaml
-│   └── git-workflow-guide.yaml
-├── requirements.txt              # Python dependencies
-├── simple_demo.py               # Demonstration script
-└── README.md                    # This file
-```
 
 ## Installation
 
@@ -51,6 +59,173 @@ ContextualAgentRulesHub/
    ```bash
    pip install -r requirements.txt
    ```
+
+## MCP Server Configuration
+
+### Installation for MCP Usage
+
+1. **Install Python dependencies**:
+   ```bash
+   pip install -r mcp-server/requirements.txt
+   ```
+
+2. **Configure your MCP client** (e.g., Claude Desktop, Cline):
+   
+   Add the following to your MCP settings file:
+   
+   **For Claude Desktop** (`claude_desktop_config.json`):
+   ```json
+   {
+     "mcpServers": {
+       "cotextual-agent-rules-hub": {
+         "command": "python",
+         "args": ["C:/path/to/ContextualAgentRulesHub/mcp-server/run_server.py"],
+         "env": {
+           "RulesLoaderOptions:0:SourceType": "YamlFile",
+           "RulesLoaderOptions:0:Path": "C:/path/to/ContextualAgentRulesHub/rules"
+         }
+       }
+     }
+   }
+   ```
+   
+   **For Cline VSCode Extension** (`settings.json`):
+   ```json
+   {
+     "cline.mcpServers": {
+       "cotextual-agent-rules-hub": {
+         "command": "python",
+         "args": ["C:/path/to/ContextualAgentRulesHub/mcp-server/run_server.py"]
+       }
+     }
+   }
+   ```
+
+### Custom Instructions for MCP Client Configuration
+
+As part of your MCP server configuration, you should add the following custom instruction block:
+
+**"For each task use the cotextual-agent-rules-hub MCP server to get all rules metadata index and if there are rules relevant to the task read All of them them to the context - this is not optional"**
+
+### Environment Configuration
+
+The MCP server can be configured using environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `RulesLoaderOptions:0:SourceType` | Source type for rules loading | `YamlFile` |
+| `RulesLoaderOptions:0:Path` | Path to rules directory | `./rules` |
+| `AGENT_RULES_VALIDATION` | Enable rule validation | `true` |
+| `AGENT_RULES_LOG_LEVEL` | Logging level (DEBUG, INFO, WARNING, ERROR) | `INFO` |
+
+#### Multiple Sources Configuration
+
+You can configure multiple rule sources by using indexed environment variables. Add additional sources using `RulesLoaderOptions:1:`, `RulesLoaderOptions:2:`, etc.
+
+**Example with multiple sources**:
+```bash
+# First source - Local YAML files
+RulesLoaderOptions:0:SourceType=YamlFile
+RulesLoaderOptions:0:Path=C:/path/to/ContextualAgentRulesHub/rules
+
+# Second source - Additional rule directory
+RulesLoaderOptions:1:SourceType=YamlFile
+RulesLoaderOptions:1:Path=C:/path/to/additional/rules
+
+# Third source - Team shared rules
+RulesLoaderOptions:2:SourceType=YamlFile
+RulesLoaderOptions:2:Path=\\shared\network\path\team-rules
+```
+
+**In MCP client configuration**:
+```json
+{
+  "mcpServers": {
+    "cotextual-agent-rules-hub": {
+      "command": "python",
+      "args": ["C:/path/to/ContextualAgentRulesHub/mcp-server/run_server.py"],
+      "env": {
+        "RulesLoaderOptions:0:SourceType": "YamlFile",
+        "RulesLoaderOptions:0:Path": "C:/path/to/ContextualAgentRulesHub/rules",
+        "RulesLoaderOptions:1:SourceType": "YamlFile",
+        "RulesLoaderOptions:1:Path": "C:/path/to/additional/rules"
+      }
+    }
+  }
+}
+```
+
+### Available MCP Tools
+
+The server exposes two main tools:
+
+#### `GetAllRulesMetadata`
+- **Purpose**: Retrieve metadata for all available rules
+- **Parameters**: None
+- **Returns**: JSON array of rule metadata objects
+- **Usage**: Query this first to discover available rules
+
+**Example Response**:
+```json
+[
+  {
+    "ruleId": "csharp-standards-rule",
+    "description": "This rule checks for adherence to C# coding standards",
+    "language": "csharp",
+    "tags": ["coding-standards", "best-practices"],
+    "source": {
+      "sourceType": "File"
+    }
+  }
+]
+```
+
+#### `GetRuleContentById`
+- **Purpose**: Get the full content of a specific rule
+- **Parameters**: 
+  - `ruleId` (string): The unique identifier of the rule
+- **Returns**: Rule content as markdown/text
+- **Usage**: Retrieve specific rule content after identifying relevant rules
+
+**Example Usage**:
+```json
+{
+  "ruleId": "csharp-standards-rule"
+}
+```
+
+### Testing the MCP Server
+
+#### Manual Testing
+
+1. **Start the server directly**:
+   ```bash
+   cd ContextualAgentRulesHub
+   python mcp-server/run_server.py
+   ```
+
+2. **Test with included script**:
+   ```bash
+   python test_mcp_server.py
+   ```
+
+#### Integration Testing
+
+1. **Configure your MCP client** with the server settings above
+2. **Query available rules**:
+   - Use the `GetAllRulesMetadata` tool to see all available rules
+   - Verify that rules are loaded from your `rules/` directory
+
+3. **Retrieve rule content**:
+   - Use `GetRuleContentById` with a rule ID from the metadata response
+   - Verify that the full rule content is returned
+
+#### Troubleshooting
+
+- **Server won't start**: Check Python path and dependencies
+- **No rules loaded**: Verify the `RulesLoaderOptions:0:Path` points to your rules directory
+- **Permission errors**: Ensure the Python process has read access to the rules directory
+- **Connection issues**: Check MCP client configuration and server logs
 
 ## Quick Start
 
@@ -66,34 +241,38 @@ This will demonstrate:
 - Content retrieval
 - Metadata indexing
 
-### Basic Usage
+### Basic Usage (Direct API)
 
 ```python
-from src.models.source import create_file_source
-from src.sources.file_source import FileSource
-from src.repository.rule_repository import RuleRepository
+from src.bootstrap.agent_rules_bootstrapper import AgentRulesBootstrapper
 
-# Create a file source
-source_config = create_file_source(
-    directory_path="rules",
-    index_file="index.yaml",
-    content_format="yaml"
-)
-
-# Initialize the source and repository
-file_source = FileSource(source_config)
-repository = RuleRepository([file_source])
-
-# Discover and index rules
-repository.discover_rules()
+# Bootstrap the rule system from environment configuration
+bootstrapper = AgentRulesBootstrapper.from_environment()
+repository = bootstrapper.bootstrap()
 
 # Query rules
-python_rules = repository.get_rules_by_language("python")
+all_rules = repository.get_all_rules()
+csharp_rules = repository.get_rules_by_language("csharp")
 testing_rules = repository.get_rules_by_tag("testing")
-best_practices = repository.get_rules_by_tags_any(["best-practices", "standards"])
 
 # Get rule content
-content = repository.get_rule_content("python-pep8-standards")
+content = repository.get_rule_content("csharp-standards-rule")
+print(content)
+```
+
+### MCP Usage (Recommended)
+
+The recommended way to use this system is through the MCP server, which provides tools that AI agents can use:
+
+```python
+# Configure your MCP client to connect to the server
+# Then use the tools through your AI agent:
+
+# 1. Get all available rules
+metadata = use_mcp_tool("GetAllRulesMetadata")
+
+# 2. Get specific rule content  
+content = use_mcp_tool("GetRuleContentById", {"ruleId": "csharp-standards-rule"})
 ```
 
 ## Rule Format
@@ -225,24 +404,31 @@ Simply add new YAML files following the established format:
 - Python 3.8+
 - PyYAML 6.0+
 
-## Phase 1 Implementation Status
+## Implementation Status
 
 ✅ **Completed Features:**
-- Core data models (Rule, Source, RuleIndex)
-- File source implementation with YAML support
-- Rule repository with multi-source support
-- Efficient indexing and querying system
-- Example rules and demonstration script
-- Comprehensive documentation
+- **MCP Server Implementation**: Fully functional FastMCP server with two tools
+- **Agent Rule System**: Complete rule management with lazy loading
+- **YAML File Support**: Load rules from YAML files with metadata
+- **Bootstrap System**: Environment-based configuration and initialization
+- **Rule Repository**: In-memory storage with efficient querying
+- **Content Sources**: Pluggable architecture for different source types
+- **Integration Layer**: Bridge between MCP server and rule system
+- **Testing Scripts**: Automated testing and validation
+- **Comprehensive Documentation**: Setup, configuration, and usage guides
 
-🔄 **Future Phases:**
+✅ **MCP Tools Available:**
+- `GetAllRulesMetadata`: Retrieve rule index for discovery
+- `GetRuleContentById`: Get specific rule content by ID
+
+🔄 **Future Enhancements:**
 - Database source implementation
-- Git repository source implementation
+- Git repository source implementation  
 - API source implementation
-- MCP server integration
-- Advanced validation and error handling
-- Performance optimization
-- Testing framework
+- Rule validation enhancements
+- Performance optimization for large rule sets
+- Advanced querying capabilities
+- Rule versioning system
 
 ## Contributing
 
