@@ -1,0 +1,26 @@
+rules:
+  - id: python-pep8-standards
+    description: "Python PEP8 coding standards and formatting guidelines"
+    language: python
+    tags: [coding-standards, pep8, formatting, best-practices]
+    content_file: python-pep8-standards.yaml
+  - id: python-testing-guide
+    description: "Python testing best practices with pytest"
+    language: python
+    tags: [testing, pytest, unit-tests, best-practices]
+    content_file: python-testing-guide.yaml
+  - id: git-workflow-guide
+    description: "Git workflow and branching strategies"
+    language: git
+    tags: [git, workflow, branching, version-control]
+    content_file: git-workflow-guide.yaml
+  - id: code-review-standards
+    description: "Code review guidelines and best practices"
+    language: null
+    tags: [code-review, best-practices, collaboration]
+    content_file: code-review-standards.yaml
+  - id: python-documentation
+    description: "Python docstring and documentation standards"
+    language: python
+    tags: [documentation, docstrings, comments, best-practices]
+    content_file: python-documentation.yaml

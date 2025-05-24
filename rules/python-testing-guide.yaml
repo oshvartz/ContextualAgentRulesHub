@@ -1,0 +1,158 @@
+id: python-testing-guide
+description: "Python testing best practices with pytest"
+language: python
+tags:
+  - testing
+  - pytest
+  - unit-tests
+  - best-practices
+rule: |
+  # Python Testing Guide with pytest
+
+  ## Test Organization
+  - Place tests in a separate `tests/` directory
+  - Mirror your source code structure in tests
+  - Name test files with `test_` prefix or `_test` suffix
+  - Use descriptive test function names starting with `test_`
+
+  ## Test Function Structure
+  - Follow the Arrange-Act-Assert pattern
+  - Keep tests focused on a single behavior
+  - Use clear, descriptive test names that explain what is being tested
+
+  ## pytest Best Practices
+
+  ### Fixtures
+  - Use fixtures for setup and teardown
+  - Prefer function-scoped fixtures unless you need wider scope
+  - Use `@pytest.fixture` decorator for reusable test data
+
+  ### Assertions
+  - Use pytest's enhanced assertions instead of assert statements with messages
+  - pytest provides detailed failure information automatically
+  - Use specific assertion helpers when available
+
+  ### Parametrization
+  - Use `@pytest.mark.parametrize` for testing multiple inputs
+  - Create data-driven tests to reduce code duplication
+
+  ## Test Coverage
+  - Aim for high test coverage but focus on quality over quantity
+  - Test edge cases and error conditions
+  - Mock external dependencies to isolate units under test
+
+  ## Examples
+
+  ### Basic Test Structure:
+  ```python
+  import pytest
+  from mymodule import Calculator
+
+  class TestCalculator:
+      def test_add_positive_numbers(self):
+          # Arrange
+          calc = Calculator()
+          
+          # Act
+          result = calc.add(2, 3)
+          
+          # Assert
+          assert result == 5
+
+      def test_add_negative_numbers(self):
+          calc = Calculator()
+          result = calc.add(-2, -3)
+          assert result == -5
+
+      def test_divide_by_zero_raises_error(self):
+          calc = Calculator()
+          with pytest.raises(ZeroDivisionError):
+              calc.divide(10, 0)
+  ```
+
+  ### Using Fixtures:
+  ```python
+  import pytest
+  from mymodule import DatabaseConnection
+
+  @pytest.fixture
+  def db_connection():
+      """Provide a database connection for tests."""
+      conn = DatabaseConnection(":memory:")
+      conn.create_tables()
+      yield conn
+      conn.close()
+
+  def test_user_creation(db_connection):
+      # Use the fixture
+      user_id = db_connection.create_user("test@example.com")
+      assert user_id is not None
+  ```
+
+  ### Parametrized Tests:
+  ```python
+  import pytest
+  from mymodule import is_prime
+
+  @pytest.mark.parametrize("number,expected", [
+      (2, True),
+      (3, True),
+      (4, False),
+      (17, True),
+      (25, False),
+  ])
+  def test_is_prime(number, expected):
+      assert is_prime(number) == expected
+  ```
+
+  ### Mocking External Dependencies:
+  ```python
+  import pytest
+  from unittest.mock import patch, Mock
+  from mymodule import WeatherService
+
+  @patch('mymodule.requests.get')
+  def test_get_temperature(mock_get):
+      # Arrange
+      mock_response = Mock()
+      mock_response.json.return_value = {"temp": 25.5}
+      mock_get.return_value = mock_response
+      
+      service = WeatherService()
+      
+      # Act
+      temp = service.get_temperature("London")
+      
+      # Assert
+      assert temp == 25.5
+      mock_get.assert_called_once()
+  ```
+
+  ## Running Tests
+  ```bash
+  # Run all tests
+  pytest
+
+  # Run with coverage
+  pytest --cov=mymodule
+
+  # Run specific test file
+  pytest tests/test_calculator.py
+
+  # Run tests matching pattern
+  pytest -k "test_add"
+
+  # Run with verbose output
+  pytest -v
+  ```
+
+  ## Test Configuration
+  Create `pytest.ini` or `pyproject.toml` for configuration:
+
+  ```ini
+  [tool:pytest]
+  testpaths = tests
+  python_files = test_*.py
+  python_classes = Test*
+  python_functions = test_*
+  addopts = -v --tb=short

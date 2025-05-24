@@ -1,0 +1,93 @@
+id: python-pep8-standards
+description: "Python PEP8 coding standards and formatting guidelines"
+language: python
+tags:
+  - coding-standards
+  - pep8
+  - formatting
+  - best-practices
+rule: |
+  # Python PEP8 Standards Guide
+
+  ## Indentation
+  - Use 4 spaces per indentation level
+  - Never mix tabs and spaces
+  - Continuation lines should align wrapped elements either vertically or using hanging indent
+
+  ## Line Length
+  - Limit all lines to a maximum of 79 characters
+  - For docstrings or comments, limit to 72 characters
+  - Long lines can be broken using backslashes or parentheses
+
+  ## Imports
+  - Import should usually be on separate lines
+  - Imports are always put at the top of the file
+  - Order: standard library, related third party, local application
+  - Use absolute imports when possible
+  - Avoid wildcard imports (from module import *)
+
+  ## Naming Conventions
+  - Functions and variables: lowercase_with_underscores (snake_case)
+  - Classes: CapitalizedWords (PascalCase)
+  - Constants: UPPER_CASE_WITH_UNDERSCORES
+  - Modules: short, all-lowercase names
+  - Private attributes: prefix with single underscore (_private)
+  - Name mangling: prefix with double underscore (__mangled)
+
+  ## Whitespace
+  - Avoid extraneous whitespace in parentheses, brackets, or braces
+  - Avoid trailing whitespace
+  - Use spaces around operators and after commas
+  - Don't use spaces around = when used for keyword arguments
+
+  ## Comments
+  - Comments should be complete sentences
+  - Block comments start with # and a single space
+  - Inline comments should be separated by at least two spaces
+  - Update comments when code changes
+
+  ## Documentation
+  - Use docstrings for all public modules, functions, classes, and methods
+  - Write docstrings in triple quotes
+  - Follow the format: one-line summary, blank line, detailed description
+
+  ## Examples
+
+  ### Good:
+  ```python
+  def calculate_area(length: float, width: float) -> float:
+      """Calculate the area of a rectangle.
+      
+      Args:
+          length: The length of the rectangle
+          width: The width of the rectangle
+          
+      Returns:
+          The area of the rectangle
+      """
+      return length * width
+
+  class GeometryCalculator:
+      """A calculator for geometric operations."""
+      
+      PI = 3.14159
+      
+      def __init__(self, precision: int = 2):
+          self._precision = precision
+      
+      def circle_area(self, radius: float) -> float:
+          """Calculate the area of a circle."""
+          return self.PI * radius ** 2
+  ```
+
+  ### Bad:
+  ```python
+  def calculateArea(length,width):
+      return length*width
+
+  class geometrycalculator:
+      pi=3.14159
+      def __init__(self,precision=2):
+          self.precision=precision
+      def circleArea(self,radius):
+          return self.pi*radius**2

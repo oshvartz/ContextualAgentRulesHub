@@ -1,0 +1,339 @@
+id: python-documentation
+description: "Python docstring and documentation standards"
+language: python
+tags:
+  - documentation
+  - docstrings
+  - comments
+  - best-practices
+rule: |
+  # Python Documentation Standards
+
+  ## Docstring Guidelines
+
+  ### General Rules
+  - Use triple quotes for all docstrings
+  - Write docstrings for all public modules, functions, classes, and methods
+  - Use complete sentences with proper punctuation
+  - Start with a one-line summary followed by a blank line
+  - Use present tense ("Returns" not "Will return")
+
+  ### Docstring Formats
+  Choose one format and use consistently throughout the project:
+  - **Google Style** (recommended)
+  - **Numpy Style**
+  - **Sphinx Style**
+
+  ## Google Style Docstrings
+
+  ### Function Docstrings
+  ```python
+  def calculate_area(length: float, width: float) -> float:
+      """Calculate the area of a rectangle.
+      
+      This function multiplies length by width to determine the
+      area of a rectangular shape.
+      
+      Args:
+          length: The length of the rectangle in units.
+          width: The width of the rectangle in units.
+          
+      Returns:
+          The area of the rectangle in square units.
+          
+      Raises:
+          ValueError: If length or width is negative.
+          TypeError: If length or width is not a number.
+          
+      Example:
+          >>> calculate_area(5.0, 3.0)
+          15.0
+      """
+      if length < 0 or width < 0:
+          raise ValueError("Length and width must be non-negative")
+      return length * width
+  ```
+
+  ### Class Docstrings
+  ```python
+  class GeometryCalculator:
+      """A calculator for geometric operations.
+      
+      This class provides methods for calculating areas, perimeters,
+      and volumes of various geometric shapes.
+      
+      Attributes:
+          precision: Number of decimal places for calculations.
+          units: The unit system being used (metric, imperial).
+          
+      Example:
+          >>> calc = GeometryCalculator(precision=2)
+          >>> calc.circle_area(5)
+          78.54
+      """
+      
+      def __init__(self, precision: int = 2, units: str = "metric"):
+          """Initialize the calculator.
+          
+          Args:
+              precision: Number of decimal places for results.
+              units: Unit system to use ('metric' or 'imperial').
+          """
+          self.precision = precision
+          self.units = units
+  ```
+
+  ### Module Docstrings
+  ```python
+  """Geometry calculation utilities.
+  
+  This module provides functions and classes for performing
+  geometric calculations including areas, perimeters, and volumes.
+  
+  Example:
+      Basic usage:
+      
+      >>> from geometry import GeometryCalculator
+      >>> calc = GeometryCalculator()
+      >>> area = calc.rectangle_area(5, 3)
+      >>> print(f"Area: {area}")
+      Area: 15
+  """
+  ```
+
+  ## Numpy Style Docstrings
+
+  ### Function Example
+  ```python
+  def calculate_volume(length, width, height):
+      """
+      Calculate the volume of a rectangular prism.
+      
+      Parameters
+      ----------
+      length : float
+          The length of the prism in units.
+      width : float
+          The width of the prism in units.
+      height : float
+          The height of the prism in units.
+          
+      Returns
+      -------
+      float
+          The volume of the prism in cubic units.
+          
+      Raises
+      ------
+      ValueError
+          If any dimension is negative.
+          
+      Examples
+      --------
+      >>> calculate_volume(2, 3, 4)
+      24.0
+      """
+      return length * width * height
+  ```
+
+  ## Comment Guidelines
+
+  ### Block Comments
+  ```python
+  # Calculate the area using the formula: area = length * width
+  # This accounts for both integer and floating-point inputs
+  area = length * width
+  ```
+
+  ### Inline Comments
+  ```python
+  x = x + 1  # Increment x by one
+  
+  # Good: Explains the why
+  x = x + 1  # Compensate for border width
+  
+  # Bad: States the obvious
+  x = x + 1  # Add one to x
+  ```
+
+  ### TODO Comments
+  ```python
+  # TODO: Add input validation for negative numbers
+  # TODO(username): Optimize this algorithm for large datasets
+  # FIXME: This breaks when input is None
+  # NOTE: This assumes input is always a list
+  ```
+
+  ## Type Hints and Documentation
+
+  ### Combining Type Hints with Docstrings
+  ```python
+  from typing import List, Optional, Dict, Any
+  
+  def process_data(
+      data: List[Dict[str, Any]], 
+      threshold: float = 0.5,
+      output_file: Optional[str] = None
+  ) -> Dict[str, int]:
+      """Process a list of data dictionaries.
+      
+      Filters data based on threshold and optionally saves to file.
+      
+      Args:
+          data: List of dictionaries containing data to process.
+          threshold: Minimum value for inclusion in results.
+          output_file: Optional path to save processed results.
+          
+      Returns:
+          Dictionary with processing statistics.
+      """
+      # Implementation here
+      pass
+  ```
+
+  ## Documentation Best Practices
+
+  ### What to Document
+  - **Purpose**: What does this code do?
+  - **Parameters**: What inputs does it expect?
+  - **Returns**: What does it output?
+  - **Side Effects**: What else does it change?
+  - **Exceptions**: What errors might it raise?
+  - **Examples**: How should it be used?
+
+  ### What NOT to Document
+  - Don't repeat what the code obviously does
+  - Don't document every single line
+  - Don't write misleading or outdated comments
+  - Don't use comments to explain bad code (refactor instead)
+
+  ### Keeping Documentation Current
+  ```python
+  def calculate_tax(income: float, rate: float) -> float:
+      """Calculate tax amount based on income and rate.
+      
+      Args:
+          income: Annual income in dollars.
+          rate: Tax rate as decimal (0.25 for 25%).
+          
+      Returns:
+          Tax amount in dollars.
+          
+      Note:
+          Updated 2024-01-15: Now supports progressive tax rates.
+      """
+      # Implementation
+      pass
+  ```
+
+  ## Tools for Documentation
+
+  ### Generating Documentation
+  ```bash
+  # Using Sphinx
+  sphinx-quickstart
+  sphinx-build -b html source build
+  
+  # Using pydoc
+  pydoc -w mymodule
+  
+  # Using pdoc
+  pdoc --html mymodule
+  ```
+
+  ### Documentation Testing
+  ```python
+  def add_numbers(a, b):
+      """Add two numbers.
+      
+      Args:
+          a: First number.
+          b: Second number.
+          
+      Returns:
+          Sum of a and b.
+          
+      Examples:
+          >>> add_numbers(2, 3)
+          5
+          >>> add_numbers(-1, 1)
+          0
+      """
+      return a + b
+  
+  if __name__ == "__main__":
+      import doctest
+      doctest.testmod()  # Tests the examples in docstrings
+  ```
+
+  ## Common Mistakes
+
+  ### Poor Examples
+  ```python
+  # Bad: No docstring
+  def calc(x, y):
+      return x * y
+  
+  # Bad: Unclear docstring
+  def calc(x, y):
+      """Does calculation."""
+      return x * y
+  
+  # Bad: Outdated docstring
+  def calc(x, y, z=1):  # Added z parameter but didn't update docstring
+      """Multiplies x and y."""
+      return x * y * z
+  ```
+
+  ### Good Examples
+  ```python
+  # Good: Clear, complete docstring
+  def calculate_product(multiplicand: float, multiplier: float) -> float:
+      """Calculate the product of two numbers.
+      
+      Args:
+          multiplicand: The number to be multiplied.
+          multiplier: The number by which to multiply.
+          
+      Returns:
+          The product of multiplicand and multiplier.
+      """
+      return multiplicand * multiplier
+  ```
+
+  ## README and Project Documentation
+
+  ### README Structure
+  ```markdown
+  # Project Name
+  
+  Brief description of what the project does.
+  
+  ## Installation
+  
+  pip install project-name
+  
+  ## Quick Start
+  
+  ```python
+  import project_name
+  result = project_name.main_function()
+  ```
+  
+  ## API Reference
+  
+  Link to detailed API documentation.
+  
+  ## Contributing
+  
+  Guidelines for contributors.
+  ```
+
+  ### Documentation Organization
+  ```
+  docs/
+  ├── api/           # API reference documentation
+  ├── tutorials/     # Step-by-step guides
+  ├── examples/      # Code examples
+  ├── changelog.md   # Version history
+  └── contributing.md # Contribution guidelines

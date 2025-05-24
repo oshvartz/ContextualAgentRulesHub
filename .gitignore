@@ -1,0 +1,94 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/.ropeproject
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Testing
+.coverage
+.pytest_cache/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# MCP Server specific
+*.log
+logs/
+temp/
+tmp/
+
+# Rule storage (if using local development rules)
+rules/temp/
+rules/backup/
+
+# OS specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows
+desktop.ini
+$RECYCLE.BIN/
+
+# Development tools
+.coverage.*
+.pytest_cache/
+htmlcov/

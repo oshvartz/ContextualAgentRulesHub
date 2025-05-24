@@ -1,0 +1,146 @@
+id: code-review-standards
+description: "Code review guidelines and best practices"
+language: null
+tags:
+  - code-review
+  - best-practices
+  - collaboration
+rule: |
+  # Code Review Standards Guide
+
+  ## Review Process
+
+  ### Before Submitting for Review
+  - Ensure code compiles and passes all tests
+  - Run linting and formatting tools
+  - Write clear, descriptive commit messages
+  - Include relevant documentation updates
+  - Test edge cases and error conditions
+
+  ### Creating Pull Requests
+  - Write clear PR title and description
+  - Reference related issues or tickets
+  - Include screenshots for UI changes
+  - List testing steps performed
+  - Highlight areas that need special attention
+
+  ## Reviewer Guidelines
+
+  ### What to Look For
+  1. **Correctness**: Does the code do what it's supposed to do?
+  2. **Performance**: Are there any obvious performance issues?
+  3. **Security**: Are there any security vulnerabilities?
+  4. **Maintainability**: Is the code readable and well-structured?
+  5. **Testing**: Are there adequate tests for the changes?
+
+  ### Review Checklist
+  - [ ] Code follows project style guidelines
+  - [ ] Functions and classes have clear purposes
+  - [ ] Variable names are descriptive
+  - [ ] Error handling is appropriate
+  - [ ] Tests cover the new functionality
+  - [ ] Documentation is updated if needed
+  - [ ] No hardcoded values or secrets
+  - [ ] Performance considerations addressed
+
+  ## Providing Feedback
+
+  ### Best Practices
+  - Be constructive and specific in comments
+  - Explain the "why" behind suggestions
+  - Praise good code and clever solutions
+  - Ask questions when something is unclear
+  - Suggest improvements rather than just pointing out problems
+
+  ### Comment Categories
+  - **Nit**: Minor style or preference issues
+  - **Question**: Seeking clarification
+  - **Suggestion**: Optional improvements
+  - **Issue**: Problems that should be addressed
+  - **Blocker**: Critical issues that prevent merging
+
+  ### Example Comments
+  ```
+  Good: "Consider using a dictionary here for O(1) lookup instead of 
+  iterating through the list, which would improve performance for 
+  large datasets."
+
+  Bad: "This is slow."
+
+  Good: "This function is doing a lot. Could we break it into smaller, 
+  more focused functions?"
+
+  Bad: "This function is too long."
+  ```
+
+  ## Responding to Reviews
+
+  ### As an Author
+  - Address all comments, even if just to acknowledge
+  - Ask for clarification when feedback is unclear
+  - Be open to suggestions and alternative approaches
+  - Update code based on valid feedback
+  - Thank reviewers for their time and insights
+
+  ### Handling Disagreements
+  - Discuss trade-offs openly
+  - Provide rationale for decisions
+  - Escalate to team leads if needed
+  - Focus on code quality, not personal preferences
+  - Remember that multiple valid solutions often exist
+
+  ## Common Issues to Avoid
+
+  ### Code Issues
+  - Overly complex functions
+  - Poor variable naming
+  - Lack of error handling
+  - Missing or inadequate tests
+  - Hardcoded values
+  - Security vulnerabilities
+  - Performance bottlenecks
+
+  ### Process Issues
+  - Large, monolithic PRs
+  - Unclear or missing descriptions
+  - Ignoring review feedback
+  - Rushed reviews without proper attention
+  - Personal attacks or unconstructive criticism
+
+  ## Tools and Automation
+
+  ### Automated Checks
+  - Set up linting and formatting checks
+  - Configure automated testing
+  - Use security scanning tools
+  - Implement code coverage reporting
+  - Set up continuous integration
+
+  ### Review Tools
+  - Use inline comments for specific issues
+  - Leverage code review platforms effectively
+  - Use draft PRs for early feedback
+  - Set up automated reviewer assignment
+  - Track review metrics for improvement
+
+  ## Team Guidelines
+
+  ### Review Assignment
+  - Rotate reviewers to spread knowledge
+  - Assign domain experts for specialized code
+  - Ensure at least two reviewers for critical changes
+  - Set clear expectations for review turnaround time
+
+  ### Approval Process
+  - Define criteria for approval
+  - Establish who can merge PRs
+  - Set up branch protection rules
+  - Require passing tests before merge
+  - Use squash commits for clean history
+
+  ### Knowledge Sharing
+  - Share interesting solutions in reviews
+  - Document patterns and anti-patterns
+  - Conduct regular review process retrospectives
+  - Maintain coding standards documentation
+  - Encourage learning through reviews

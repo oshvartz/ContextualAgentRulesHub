@@ -1,0 +1,164 @@
+id: git-workflow-guide
+description: "Git workflow and branching strategies"
+language: git
+tags:
+  - git
+  - workflow
+  - branching
+  - version-control
+rule: |
+  # Git Workflow Guide
+
+  ## Branching Strategy
+
+  ### Main Branches
+  - `main` (or `master`): Production-ready code
+  - `develop`: Integration branch for features
+
+  ### Supporting Branches
+  - `feature/feature-name`: New features
+  - `release/version`: Release preparation
+  - `hotfix/issue-name`: Critical production fixes
+
+  ## Workflow Steps
+
+  ### Feature Development
+  1. Create feature branch from develop:
+     ```bash
+     git checkout develop
+     git pull origin develop
+     git checkout -b feature/new-feature
+     ```
+
+  2. Work on feature with regular commits:
+     ```bash
+     git add .
+     git commit -m "Add new feature functionality"
+     ```
+
+  3. Push feature branch:
+     ```bash
+     git push origin feature/new-feature
+     ```
+
+  4. Create pull request to develop branch
+
+  ### Release Process
+  1. Create release branch from develop:
+     ```bash
+     git checkout develop
+     git checkout -b release/1.2.0
+     ```
+
+  2. Finalize release (version bumps, documentation):
+     ```bash
+     git commit -m "Bump version to 1.2.0"
+     ```
+
+  3. Merge to main and tag:
+     ```bash
+     git checkout main
+     git merge release/1.2.0
+     git tag -a v1.2.0 -m "Release version 1.2.0"
+     ```
+
+  4. Merge back to develop:
+     ```bash
+     git checkout develop
+     git merge release/1.2.0
+     ```
+
+  ## Commit Guidelines
+
+  ### Commit Message Format
+  ```
+  type(scope): subject
+
+  body
+
+  footer
+  ```
+
+  ### Types
+  - `feat`: New feature
+  - `fix`: Bug fix
+  - `docs`: Documentation changes
+  - `style`: Code formatting
+  - `refactor`: Code refactoring
+  - `test`: Adding tests
+  - `chore`: Maintenance tasks
+
+  ### Examples
+  ```bash
+  feat(auth): add user authentication system
+  fix(api): resolve null pointer exception in user service
+  docs(readme): update installation instructions
+  ```
+
+  ## Best Practices
+
+  ### General Rules
+  - Keep commits atomic and focused
+  - Write clear, descriptive commit messages
+  - Use present tense ("Add feature" not "Added feature")
+  - Reference issues in commits when applicable
+
+  ### Branch Management
+  - Delete merged feature branches
+  - Keep branches up to date with base branch
+  - Use descriptive branch names
+  - Avoid long-running feature branches
+
+  ### Code Reviews
+  - Always use pull requests for code review
+  - Review code thoroughly before merging
+  - Provide constructive feedback
+  - Test changes locally when possible
+
+  ## Useful Git Commands
+
+  ### Status and History
+  ```bash
+  git status                    # Check working directory status
+  git log --oneline            # Compact commit history
+  git log --graph --all        # Visual branch history
+  git diff                     # Show unstaged changes
+  git diff --cached            # Show staged changes
+  ```
+
+  ### Branch Operations
+  ```bash
+  git branch -a                # List all branches
+  git branch -d feature-name   # Delete local branch
+  git push origin --delete feature-name  # Delete remote branch
+  ```
+
+  ### Undoing Changes
+  ```bash
+  git reset --soft HEAD~1      # Undo last commit, keep changes staged
+  git reset --hard HEAD~1      # Undo last commit, discard changes
+  git revert commit-hash       # Create new commit that undoes changes
+  ```
+
+  ### Synchronization
+  ```bash
+  git fetch origin            # Fetch latest changes
+  git pull origin main        # Fetch and merge
+  git push origin branch-name # Push local branch
+  ```
+
+  ## Configuration
+
+  ### Global Git Settings
+  ```bash
+  git config --global user.name "Your Name"
+  git config --global user.email "your.email@example.com"
+  git config --global init.defaultBranch main
+  git config --global pull.rebase false
+  ```
+
+  ### .gitignore Best Practices
+  - Add environment-specific files
+  - Exclude build artifacts
+  - Ignore IDE-specific files
+  - Use templates for common languages

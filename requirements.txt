@@ -1,0 +1,2 @@
+# Core dependencies for ContextualAgentRulesHub
+PyYAML>=6.0
