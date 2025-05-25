@@ -1,4 +1,4 @@
-# ContextualAgentRulesHub
+# Contextual Agent Rules Hub
 
 ## Overview
 
@@ -6,14 +6,14 @@
 
 ## Motivation
 
-Managing agent rules effectively can be challenging. Sharing rules across different agents or projects often leads to inconsistencies and difficulties in maintaining a centralized rule set. Furthermore, AI agents often operate with limited context windows. Sending a large, undifferentiated set of rules can consume valuable context space. AgentRulesHub aims to address these issues by:
+Managing agent rules effectively can be challenging. Sharing rules across different agents or projects often leads to inconsistencies and difficulties in maintaining a centralized rule set. Furthermore, AI agents often operate with limited context windows. Sending a large, undifferentiated set of rules can consume valuable context space. ContextualAgentRulesHub aims to address these issues by:
 
 -   Providing a structured way to organize and access rules.
 -   Enabling agents to retrieve only the rules relevant to their current task, thus minimizing context length and improving efficiency.
 
 ## Task Flow
 
-This section describes the typical flow of an AI agent interacting with the AgentRulesHub MCP server to retrieve and utilize rules for a given task.
+This section describes the typical flow of an AI agent interacting with the ContextualAgentRulesHub MCP server to retrieve and utilize rules for a given task.
 
 1.  **Task Initiation**: An agent (e.g., Cline) begins a new task.
 2.  **Retrieve Rule Index**: The agent queries the `rules-hub` MCP server using the `GetAllRulesMetadata` tool. This provides an index of all available rules, including their IDs, descriptions, languages, and tags.
@@ -24,7 +24,7 @@ This section describes the typical flow of an AI agent interacting with the Agen
 ```mermaid
 sequenceDiagram
     participant Agent
-    participant RulesHubServer as "rules-hub MCP Server"
+    participant RulesHubServer as "ContextualAgentRulesHub MCP Server"
 
     Agent->>RulesHubServer: 1. Request: GetAllRulesMetadata
     RulesHubServer-->>Agent: 2. Response: Rules Index (Metadata)
