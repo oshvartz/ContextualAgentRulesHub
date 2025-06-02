@@ -50,9 +50,14 @@ class RuleSystemIntegration:
         except Exception as e:
             raise Exception(f"Failed to initialize rule system: {str(e)}")
     
-    def get_all_rules_metadata(self) -> List[Dict[str, Any]]:
+    def get_all_rules_metadata(self, context_filter: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Get metadata for all rules in the repository.
+        
+        Args:
+            context_filter: Optional context filter:
+                - If None: returns only rules without context
+                - If provided: returns rules with no context OR matching context
         
         Returns:
             List of rule metadata dictionaries
@@ -66,7 +71,8 @@ class RuleSystemIntegration:
         if not self._repository:
             raise Exception("Repository not initialized")
         
-        rules = self._repository.get_all_rules()
+        # Use get_rules_by_criteria with context filter
+        rules = self._repository.get_rules_by_criteria(context=context_filter)
         metadata_list = []
         
         for rule in rules:
@@ -78,8 +84,9 @@ class RuleSystemIntegration:
                 "description": rule.description,
                 "language": rule.language,
                 "tags": rule.tags,
+                "context": rule.context,
                 "source": {
-                    "sourceType": source_info.get("type", "File")
+                    "sourceType": source_info.get("source_type", "File")
                 }
             }
             metadata_list.append(metadata)
@@ -137,6 +144,21 @@ class RuleSystemIntegration:
             })
         
         return stats
+    
+    def get_available_contexts(self) -> List[str]:
+        """
+        Get list of all available contexts.
+        
+        Returns:
+            List of distinct context strings, empty if no contexts exist
+        """
+        if not self._initialized:
+            self.initialize()
+        
+        if not self._repository:
+            return []
+        
+        return self._repository.get_available_contexts()
     
     def rule_exists(self, rule_id: str) -> bool:
         """

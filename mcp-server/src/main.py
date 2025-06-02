@@ -8,6 +8,7 @@ with tools for accessing rule metadata and content.
 
 import logging
 import json
+from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -24,14 +25,14 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP("cotextual-agent-rules-hub")
 
 @mcp.tool()
-async def GetAllRulesMetadata() -> str:
-    """Get metadata for all rules in the index."""
+async def GetAllRulesMetadata(contextFilter: Optional[str] = None) -> str:
+    """Get metadata for all rules in the index. Optionally filter by context."""
     try:
         # Initialize rule system if needed
         rule_system.initialize()
         
-        # Get all rules metadata
-        metadata_list = rule_system.get_all_rules_metadata()
+        # Get all rules metadata with optional context filter
+        metadata_list = rule_system.get_all_rules_metadata(context_filter=contextFilter)
         
         # Return as JSON string
         return json.dumps(metadata_list, indent=2)
@@ -66,6 +67,23 @@ async def GetRuleContentById(ruleId: str) -> str:
     except Exception as e:
         logger.error(f"Error in GetRuleContentById: {e}")
         return f"Error retrieving rule content: {str(e)}"
+
+@mcp.tool()
+async def GetAllContexts() -> str:
+    """Get all available contexts. Returns empty list if no contexts exist."""
+    try:
+        # Initialize rule system if needed
+        rule_system.initialize()
+        
+        # Get all available contexts
+        contexts = rule_system.get_available_contexts()
+        
+        # Return as JSON string
+        return json.dumps(contexts, indent=2)
+        
+    except Exception as e:
+        logger.error(f"Error in GetAllContexts: {e}")
+        return f"Error retrieving contexts: {str(e)}"
 
 # Initialize rule system when module is loaded
 try:

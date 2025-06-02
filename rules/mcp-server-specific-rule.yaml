@@ -1,0 +1,76 @@
+id: mcp-server-specific-rule
+description: "MCP server development guidelines and best practices"
+language: python
+context: mcp-server
+tags:
+  - mcp-server
+  - python
+  - protocol
+  - server-development
+rule: |
+  # MCP Server Development Guidelines
+  
+  ## Project Context
+  This rule applies specifically to MCP (Model Context Protocol) server development.
+  
+  ## MCP Server Standards
+  
+  ### Tool Definition Requirements
+  - All tools must have clear, descriptive names
+  - Include comprehensive docstrings for tool functions
+  - Use proper type hints for all parameters
+  - Validate input parameters before processing
+  
+  ### Error Handling
+  - Always wrap tool logic in try-catch blocks
+  - Return meaningful error messages to clients
+  - Log errors with appropriate severity levels
+  - Never expose internal system details in error messages
+  
+  ### Resource Management
+  - Implement proper cleanup for resources
+  - Use context managers where appropriate
+  - Handle file operations safely
+  - Manage memory usage efficiently
+  
+  ### Protocol Compliance
+  - Follow MCP specification exactly
+  - Use proper JSON schema for tool definitions
+  - Implement required MCP endpoints
+  - Handle protocol versioning correctly
+  
+  ## Example Tool Implementation
+  ```python
+  @mcp.tool()
+  async def ExampleTool(param1: str, param2: Optional[int] = None) -> str:
+      """
+      Example MCP tool implementation.
+      
+      Args:
+          param1: Required string parameter
+          param2: Optional integer parameter
+          
+      Returns:
+          Tool result as string
+      """
+      try:
+          # Validate inputs
+          if not param1 or not param1.strip():
+              return "Error: param1 must be a non-empty string"
+          
+          # Process the request
+          result = process_mcp_request(param1, param2)
+          
+          # Return formatted result
+          return json.dumps(result, indent=2)
+          
+      except Exception as e:
+          logger.error(f"Error in ExampleTool: {e}")
+          return f"Error processing request: {str(e)}"
+  ```
+  
+  ## Testing Requirements
+  - Test all tool endpoints thoroughly
+  - Include error condition testing
+  - Verify JSON schema compliance
+  - Test with various client implementations

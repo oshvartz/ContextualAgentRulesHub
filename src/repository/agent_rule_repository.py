@@ -166,11 +166,12 @@ class AgentRuleRepository:
         return [rule for rule in self._rules.values() 
                 if query_lower in rule.description.lower()]
     
-    def get_rules_by_criteria(self, 
+    def get_rules_by_criteria(self,
                             language: Optional[str] = None,
                             tags: Optional[List[str]] = None,
                             tags_mode: str = "any",
-                            description_query: Optional[str] = None) -> List[AgentRule]:
+                            description_query: Optional[str] = None,
+                            context: Optional[str] = None) -> List[AgentRule]:
         """
         Get rules by multiple criteria.
         
@@ -179,6 +180,9 @@ class AgentRuleRepository:
             tags: Filter by tags (optional)
             tags_mode: Either "any" or "all" for tag matching
             description_query: Search in descriptions (optional)
+            context: Filter by context (optional):
+                - If None: returns only rules without context
+                - If provided: returns rules with no context OR matching context
             
         Returns:
             List of rules matching all specified criteria
@@ -199,8 +203,20 @@ class AgentRuleRepository:
         # Filter by description query
         if description_query:
             query_lower = description_query.lower()
-            rules = [rule for rule in rules 
+            rules = [rule for rule in rules
                     if query_lower in rule.description.lower()]
+        
+        # Filter by context
+        if context is not None:
+            # If context filter is provided: include rules with no context OR matching context
+            context_lower = context.lower()
+            rules = [
+                rule for rule in rules
+                if rule.context is None or rule.context.lower() == context_lower
+            ]
+        else:
+            # If no context filter is provided: return only rules without context
+            rules = [rule for rule in rules if rule.context is None]
         
         return rules
     
@@ -219,6 +235,14 @@ class AgentRuleRepository:
             tags.update(rule.tags)
         return sorted(list(tags))
     
+    def get_available_contexts(self) -> List[str]:
+        """Get list of all available contexts (excluding None)."""
+        contexts = set()
+        for rule in self._rules.values():
+            if rule.context:
+                contexts.add(rule.context)
+        return sorted(list(contexts))
+    
     def get_repository_stats(self) -> dict:
         """
         Get statistics about the repository.
@@ -230,8 +254,10 @@ class AgentRuleRepository:
             "total_rules": len(self._rules),
             "total_languages": len(self.get_available_languages()),
             "total_tags": len(self.get_available_tags()),
+            "total_contexts": len(self.get_available_contexts()),
             "available_languages": self.get_available_languages(),
-            "available_tags": self.get_available_tags()
+            "available_tags": self.get_available_tags(),
+            "available_contexts": self.get_available_contexts()
         }
     
     def clear(self) -> None:

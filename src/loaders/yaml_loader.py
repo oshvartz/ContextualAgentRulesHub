@@ -132,6 +132,11 @@ class YamlRuleLoader:
             if not isinstance(tags, list):
                 raise ValueError(f"'tags' must be a list in {yaml_file}")
             
+            context = data.get('context')
+            # Convert null/None to None (similar to language handling)
+            if context == 'null':
+                context = None
+            
             # Ensure 'rule' field exists (even if we don't load content now)
             if 'rule' not in data:
                 raise ValueError(f"Missing 'rule' field in {yaml_file}")
@@ -145,7 +150,8 @@ class YamlRuleLoader:
                 description=description,
                 language=language,
                 tags=tags,
-                content_source=content_source
+                content_source=content_source,
+                context=context
             )
             
             return rule

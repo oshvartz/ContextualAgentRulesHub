@@ -17,12 +17,14 @@ class AgentRule:
         language: Optional programming language or domain the rule applies to
         tags: List of tags for categorization and filtering
         content_source: RuleContentSource for on-demand content loading
+        context: Optional context the rule applies to (e.g., project name)
     """
     rule_id: str
     description: str
     language: Optional[str]
     tags: List[str]
     content_source: RuleContentSource
+    context: Optional[str] = None
     
     def __post_init__(self):
         """Validate rule data after initialization."""
@@ -84,4 +86,4 @@ class AgentRule:
     def __repr__(self) -> str:
         """Developer representation of the rule."""
         return (f"AgentRule(rule_id='{self.rule_id}', description='{self.description}', "
-                f"language='{self.language}', tags={self.tags})")
+                f"language='{self.language}', tags={self.tags}, context='{self.context}')")

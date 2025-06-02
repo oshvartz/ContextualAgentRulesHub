@@ -10,42 +10,64 @@ Managing agent rules effectively can be challenging. Sharing rules across differ
 
 -   Providing a structured way to organize and access rules.
 -   Enabling agents to retrieve only the rules relevant to their current task, thus minimizing context length and improving efficiency.
+-   Supporting context-based rule organization for project-specific guidelines.
+
+## Key Features
+
+- **Context-Based Rule Organization**: Rules can be associated with specific contexts (e.g., project names), allowing for both general and context-specific guidelines
+- **Multi-Source Support**: Extensible architecture supporting File, Database, Git Repository, and API sources
+- **YAML-Based Storage**: Human-readable rule storage with metadata and content separation
+- **Efficient Indexing**: Fast lookups by language, tags, context, and content search
+- **Lazy Loading**: Rule content is loaded only when needed for optimal performance
+- **Flexible Querying**: Support for complex queries combining language, tags, context, and text search
+- **Tag-Based Organization**: Flexible categorization system with AND/OR logic support
 
 ## Task Flow
 
 This section describes the typical flow of an AI agent interacting with the AgentRulesHub MCP server to retrieve and utilize rules for a given task.
 
-1.  **Task Initiation**: An agent (e.g., Cline) begins a new task.
-2.  **Retrieve Rule Index**: The agent queries the `rules-hub` MCP server using the `GetAllRulesMetadata` tool. This provides an index of all available rules, including their IDs, descriptions, languages, and tags.
-3.  **Identify Relevant Rules**: Based on the current task's context (e.g., programming language, keywords, objectives) and the metadata received, the agent analyzes the rule index to identify which rules are relevant.
-4.  **Retrieve Rule Content**: If relevant rules are identified, the agent uses the `GetRuleContentById` tool for each relevant rule ID to fetch its specific content.
-5.  **Utilize Rules**: The agent incorporates the content of the retrieved rules to guide its actions, improve its output, or ensure adherence to specific guidelines for the task at hand.
+1.  **Task Initiation**: An agent (e.g., Cline) begins a new task with an optional context (e.g., "TheProject" for a specific project).
+2.  **Retrieve Available Contexts** (Optional): The agent can query the `GetAllContexts` tool to discover available contexts.
+3.  **Retrieve Rule Index**: The agent queries the `rules-hub` MCP server using the `GetAllRulesMetadata` tool, optionally providing a context filter. This provides an index of all available rules, including their IDs, descriptions, languages, tags, and contexts.
+4.  **Identify Relevant Rules**: Based on the current task's context (e.g., programming language, keywords, objectives) and the metadata received, the agent analyzes the rule index to identify which rules are relevant.
+5.  **Retrieve Rule Content**: If relevant rules are identified, the agent uses the `GetRuleContentById` tool for each relevant rule ID to fetch its specific content.
+6.  **Utilize Rules**: The agent incorporates the content of the retrieved rules to guide its actions, improve its output, or ensure adherence to specific guidelines for the task at hand.
 
 ```mermaid
 sequenceDiagram
     participant Agent
     participant RulesHubServer as "rules-hub MCP Server"
 
-    Agent->>RulesHubServer: 1. Request: GetAllRulesMetadata
-    RulesHubServer-->>Agent: 2. Response: Rules Index (Metadata)
-    Agent->>Agent: 3. Analyze Task & Identify Relevant Rules
+    Agent->>RulesHubServer: 1. Request: GetAllContexts (Optional)
+    RulesHubServer-->>Agent: 2. Response: Available Contexts
+    Agent->>RulesHubServer: 3. Request: GetAllRulesMetadata(contextFilter?)
+    RulesHubServer-->>Agent: 4. Response: Rules Index (Metadata)
+    Agent->>Agent: 5. Analyze Task & Identify Relevant Rules
     alt Relevant Rules Found
         loop For Each Relevant Rule
-            Agent->>RulesHubServer: 4. Request: GetRuleContentById (ruleId)
-            RulesHubServer-->>Agent: 5. Response: Rule Content
+            Agent->>RulesHubServer: 6. Request: GetRuleContentById (ruleId)
+            RulesHubServer-->>Agent: 7. Response: Rule Content
         end
     end
-    Agent->>Agent: 6. Utilize Rule Content for Task
+    Agent->>Agent: 8. Utilize Rule Content for Task
 ```
 
-## Features
+## Context-Based Rule Filtering
 
-- **Multi-Source Support**: Extensible architecture supporting File, Database, Git Repository, and API sources
-- **YAML-Based Storage**: Human-readable rule storage with metadata and content separation
-- **Efficient Indexing**: Fast lookups by language, tags, and content search
-- **Lazy Loading**: Rule content is loaded only when needed for optimal performance
-- **Flexible Querying**: Support for complex queries combining language, tags, and text search
-- **Tag-Based Organization**: Flexible categorization system with AND/OR logic support
+The context feature allows you to organize rules for specific projects or domains while maintaining a set of general rules that apply universally.
+
+### Context Behavior
+
+- **No context filter**: Returns only rules without context (general rules)
+- **With context filter**: Returns rules with no context OR rules matching the provided context
+
+This ensures that general rules are always available, while context-specific rules are only returned when explicitly requested.
+
+### Example Use Cases
+
+1. **General Development**: No context filter - get all general coding standards
+2. **Project-Specific Work**: Context filter "TheProject" - get general rules plus TheProject-specific guidelines
+3. **MCP Server Development**: Context filter "mcp-server" - get general rules plus MCP-specific standards
 
 ## Installation
 
@@ -103,9 +125,19 @@ sequenceDiagram
 
 ### Custom Instructions for MCP Client Configuration
 
-As part of your MCP server configuration, you should add the following custom instruction block:
+As part of your MCP server configuration, you should add the following optimized custom instruction block that leverages the context feature:
 
-**"For each task use the cotextual-agent-rules-hub MCP server to get all rules metadata index and if there are rules relevant to the task read All of them them to the context - this is not optional"**
+```
+When starting a new task:
+1. First, use the cotextual-agent-rules-hub MCP server's GetAllContexts tool to discover available contexts
+2. Unless the task explicitly states which context to use, ask the user to select from the available contexts or indicate that none should be used
+3. Use GetAllRulesMetadata with the appropriate contextFilter if the user selected a specific context, or without a filter for general tasks
+4. Review the rules metadata and identify ALL rules relevant to your task based on language, tags, and descriptions
+5. Use GetRuleContentById to retrieve the content of ALL relevant rules
+6. Apply these rules throughout your work on the task
+
+This context-aware approach ensures you always have access to general best practices while also incorporating project-specific guidelines when explicitly requested.
+```
 
 ### Environment Configuration
 
@@ -157,13 +189,29 @@ RulesLoaderOptions:2:Path=\\shared\network\path\team-rules
 
 ### Available MCP Tools
 
-The server exposes two main tools:
+The server exposes three main tools:
+
+#### `GetAllContexts`
+- **Purpose**: Retrieve all available contexts in the system
+- **Parameters**: None
+- **Returns**: JSON array of context strings
+- **Usage**: Query this first to discover available contexts for your work
+
+**Example Response**:
+```json
+[
+  "TheProject",
+  "mcp-server",
+  "frontend-app"
+]
+```
 
 #### `GetAllRulesMetadata`
 - **Purpose**: Retrieve metadata for all available rules
-- **Parameters**: None
+- **Parameters**: 
+  - `contextFilter` (optional): Filter rules by context
 - **Returns**: JSON array of rule metadata objects
-- **Usage**: Query this first to discover available rules
+- **Usage**: Query this to discover available rules, optionally filtered by context
 
 **Example Response**:
 ```json
@@ -173,6 +221,17 @@ The server exposes two main tools:
     "description": "This rule checks for adherence to C# coding standards",
     "language": "csharp",
     "tags": ["coding-standards", "best-practices"],
+    "context": null,
+    "source": {
+      "sourceType": "File"
+    }
+  },
+  {
+    "ruleId": "theproject-python-guidelines",
+    "description": "Python guidelines specific to TheProject",
+    "language": "python",
+    "tags": ["python", "theproject"],
+    "context": "TheProject",
     "source": {
       "sourceType": "File"
     }
@@ -212,11 +271,15 @@ The server exposes two main tools:
 #### Integration Testing
 
 1. **Configure your MCP client** with the server settings above
-2. **Query available rules**:
-   - Use the `GetAllRulesMetadata` tool to see all available rules
+2. **Query available contexts**:
+   - Use the `GetAllContexts` tool to see all available contexts
+   
+3. **Query available rules**:
+   - Use the `GetAllRulesMetadata` tool to see all general rules
+   - Use `GetAllRulesMetadata` with a context filter to see context-specific rules
    - Verify that rules are loaded from your `rules/` directory
 
-3. **Retrieve rule content**:
+4. **Retrieve rule content**:
    - Use `GetRuleContentById` with a rule ID from the metadata response
    - Verify that the full rule content is returned
 
@@ -226,6 +289,7 @@ The server exposes two main tools:
 - **No rules loaded**: Verify the `RulesLoaderOptions:0:Path` points to your rules directory
 - **Permission errors**: Ensure the Python process has read access to the rules directory
 - **Connection issues**: Check MCP client configuration and server logs
+- **Context filtering not working**: Ensure rules have the `context` field properly set in YAML files
 
 ## Quick Start
 
@@ -237,7 +301,7 @@ python simple_demo.py
 
 This will demonstrate:
 - Loading rules from YAML files
-- Filtering by language and tags
+- Filtering by language, tags, and context
 - Content retrieval
 - Metadata indexing
 
@@ -255,6 +319,13 @@ all_rules = repository.get_all_rules()
 csharp_rules = repository.get_rules_by_language("csharp")
 testing_rules = repository.get_rules_by_tag("testing")
 
+# Query with context
+theproject_rules = repository.get_rules_by_criteria(context="TheProject")  # Gets general + TheProject rules
+general_rules = repository.get_rules_by_criteria()  # Gets only general rules
+
+# Get available contexts
+contexts = repository.get_available_contexts()
+
 # Get rule content
 content = repository.get_rule_content("csharp-standards-rule")
 print(content)
@@ -268,25 +339,21 @@ The recommended way to use this system is through the MCP server, which provides
 # Configure your MCP client to connect to the server
 # Then use the tools through your AI agent:
 
-# 1. Get all available rules
-metadata = use_mcp_tool("GetAllRulesMetadata")
+# 1. Get available contexts
+contexts = use_mcp_tool("GetAllContexts")
 
-# 2. Get specific rule content  
+# 2. Get all available rules (with optional context filter)
+metadata = use_mcp_tool("GetAllRulesMetadata", {"contextFilter": "TheProject"})
+
+# 3. Get specific rule content  
 content = use_mcp_tool("GetRuleContentById", {"ruleId": "csharp-standards-rule"})
 ```
 
 ## Rule Format
 
-### Index File (`rules/index.yaml`)
+### Index File (`rules/index.yaml`) - **Deprecated**
 
-```yaml
-rules:
-  - id: python-pep8-standards
-    description: "Python PEP8 coding standards and formatting guidelines"
-    language: python
-    tags: [coding-standards, pep8, formatting, best-practices]
-    content_file: python-pep8-standards.yaml
-```
+Note: The index file is no longer required. Rules are now loaded directly from individual YAML files.
 
 ### Rule Content File (`rules/python-pep8-standards.yaml`)
 
@@ -294,6 +361,7 @@ rules:
 id: python-pep8-standards
 description: "Python PEP8 coding standards and formatting guidelines"
 language: python
+context: null  # Optional: null for general rules, or specify a context like "TheProject"
 tags:
   - coding-standards
   - pep8
@@ -312,11 +380,33 @@ rule: |
   [... detailed rule content ...]
 ```
 
+### Context-Specific Rule Example
+
+```yaml
+id: theproject-api-guidelines
+description: "API development guidelines specific to TheProject"
+language: python
+context: TheProject  # This rule only appears when context filter is "TheProject"
+tags:
+  - api
+  - theproject
+  - rest
+  - guidelines
+rule: |
+  # TheProject API Development Guidelines
+  
+  ## API Versioning
+  - All APIs must use semantic versioning
+  - Version must be included in URL path: /api/v1/
+  
+  [... TheProject-specific guidelines ...]
+```
+
 ## Core Components
 
 ### Data Models
 
-- **Rule**: Contains metadata (ID, description, language, tags) and content
+- **Rule**: Contains metadata (ID, description, language, tags, context) and content
 - **Source**: Defines storage configuration for different source types
 - **RuleIndex**: Provides efficient indexing and querying capabilities
 
@@ -332,7 +422,8 @@ rule: |
 - **Multi-source aggregation**: Combine rules from multiple sources
 - **Lazy loading**: Content loaded only when requested
 - **Efficient querying**: Index-based lookups for fast performance
-- **Flexible filtering**: Language, tags, and text-based search
+- **Flexible filtering**: Language, tags, context, and text-based search
+- **Context awareness**: Smart filtering based on project context
 
 ## API Reference
 
@@ -345,7 +436,8 @@ rule: |
 - `get_rules_by_tags_any(tags)` - Filter by any of multiple tags (OR logic)
 - `get_rules_by_tags_all(tags)` - Filter by all tags (AND logic)
 - `search_rules(query)` - Text search in descriptions
-- `get_rules_by_criteria()` - Complex multi-criteria queries
+- `get_rules_by_criteria(language, tags, tags_mode, description_query, context)` - Complex multi-criteria queries with context support
+- `get_available_contexts()` - Get list of all available contexts
 
 #### Content Methods
 - `get_rule(rule_id)` - Get rule metadata
@@ -355,7 +447,7 @@ rule: |
 - `discover_rules()` - Scan and index all rules from sources
 - `add_source(source)` - Add new rule source
 - `refresh()` - Reload all rules from sources
-- `get_repository_stats()` - Get statistics about the repository
+- `get_repository_stats()` - Get statistics about the repository including context distribution
 
 ## Extending the System
 
@@ -389,25 +481,29 @@ rule: |
 
 Simply add new YAML files following the established format:
 
-1. Add metadata to `rules/index.yaml`
-2. Create content file `rules/your-rule-id.yaml`
-3. Use appropriate language and tags for categorization
+1. Create content file `rules/your-rule-id.yaml`
+2. Include appropriate language, tags, and context for categorization
+3. Rules are automatically discovered on next server start
 
 ## Example Rules Included
 
 1. **python-pep8-standards**: Python coding standards and formatting
 2. **python-testing-guide**: Python testing best practices with pytest
 3. **git-workflow-guide**: Git workflow and branching strategies
+4. **code-review-standards**: Code review guidelines and best practices
+5. **mcp-server-specific-rule**: MCP server development guidelines (context: mcp-server)
 
 ## Requirements
 
 - Python 3.8+
 - PyYAML 6.0+
+- fastmcp (for MCP server)
 
 ## Implementation Status
 
 ✅ **Completed Features:**
-- **MCP Server Implementation**: Fully functional FastMCP server with two tools
+- **MCP Server Implementation**: Fully functional FastMCP server with three tools
+- **Context-Based Filtering**: Support for project-specific rule organization
 - **Agent Rule System**: Complete rule management with lazy loading
 - **YAML File Support**: Load rules from YAML files with metadata
 - **Bootstrap System**: Environment-based configuration and initialization
@@ -418,7 +514,8 @@ Simply add new YAML files following the established format:
 - **Comprehensive Documentation**: Setup, configuration, and usage guides
 
 ✅ **MCP Tools Available:**
-- `GetAllRulesMetadata`: Retrieve rule index for discovery
+- `GetAllContexts`: Discover available contexts
+- `GetAllRulesMetadata`: Retrieve rule index for discovery with optional context filtering
 - `GetRuleContentById`: Get specific rule content by ID
 
 🔄 **Future Enhancements:**
@@ -429,6 +526,7 @@ Simply add new YAML files following the established format:
 - Performance optimization for large rule sets
 - Advanced querying capabilities
 - Rule versioning system
+- Rule inheritance and composition
 
 ## Contributing
 
