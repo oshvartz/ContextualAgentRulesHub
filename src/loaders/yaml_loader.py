@@ -140,6 +140,10 @@ class YamlRuleLoader:
             # Ensure 'rule' field exists (even if we don't load content now)
             if 'rule' not in data:
                 raise ValueError(f"Missing 'rule' field in {yaml_file}")
+
+            is_core = data.get('is_core', data.get('coreRule', False)) # Check for 'is_core' first, then 'coreRule' for backward compatibility, defaults to False
+            if not isinstance(is_core, bool):
+                raise ValueError(f"'is_core' (or 'coreRule') must be a boolean in {yaml_file}")
             
             # Create content source
             content_source = YamlFileContentSource(str(yaml_file))
@@ -151,7 +155,8 @@ class YamlRuleLoader:
                 language=language,
                 tags=tags,
                 content_source=content_source,
-                context=context
+                context=context,
+                is_core=is_core
             )
             
             return rule

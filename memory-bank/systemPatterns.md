@@ -25,8 +25,8 @@ MCP Server (Python)
 - Extensible for future source types (database, API, etc.)
 
 ### Entity Model Pattern
-- `Rule` entity with metadata (ID, description, language, tags)
-- `Source` entity for storage source information
+- `AgentRule` entity with metadata (ID, description, language, tags, context, **is_core**)
+- `RuleContentSource` for on-demand content loading.
 - Clean separation between data and storage concerns
 
 ### Query Builder Pattern
@@ -34,6 +34,7 @@ MCP Server (Python)
   - Programming language filtering
   - Tag-based categorization
   - Combined criteria queries
+  - **is_core** filtering
 
 ## Component Relationships
 
@@ -50,11 +51,19 @@ MCP Server (Python)
 ## File Organization Patterns
 ```
 rules/
-├── {rule-id}.yaml          # Rule content files
-├── index.yaml              # Rule metadata index
-└── sources/
-    └── file-source.yaml    # Source configuration
+├── {rule-id}.yaml          # Rule content files with optional 'is_core: true/false' (also supports 'coreRule' for backward compatibility)
+# index.yaml is no longer the primary source of truth for metadata, 
+# metadata is embedded in each rule file or loaded by AgentRulesBootstrapper.
+└── sources/ # This structure is managed by AgentRulesBootstrapper via environment variables
+    # Example: RulesLoaderOptions:0:SourceType=YamlFile
+    #          RulesLoaderOptions:0:Path=c:/git/ContextualAgentRulesHub/rules
 ```
+
+## MCP Tool Summary
+- **GetAllRulesMetadata**: Get metadata for all non-core rules.
+- **GetRuleContentById**: Get content of a specific rule by ID.
+- **GetAllContexts**: Get all available contexts.
+- **GetCoreRulesContent**: Get content for all core rules.
 
 ## Extensibility Points
 - Source abstraction allows for new storage backends

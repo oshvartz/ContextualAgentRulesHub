@@ -171,7 +171,8 @@ class AgentRuleRepository:
                             tags: Optional[List[str]] = None,
                             tags_mode: str = "any",
                             description_query: Optional[str] = None,
-                            context: Optional[str] = None) -> List[AgentRule]:
+                            context: Optional[str] = None,
+                            is_core: Optional[bool] = None) -> List[AgentRule]:
         """
         Get rules by multiple criteria.
         
@@ -183,6 +184,7 @@ class AgentRuleRepository:
             context: Filter by context (optional):
                 - If None: returns only rules without context
                 - If provided: returns rules with no context OR matching context
+            is_core: Filter by is_core status (True, False, or None for no filter) (optional)
             
         Returns:
             List of rules matching all specified criteria
@@ -217,6 +219,10 @@ class AgentRuleRepository:
         else:
             # If no context filter is provided: return only rules without context
             rules = [rule for rule in rules if rule.context is None]
+
+        # Filter by is_core status
+        if is_core is not None:
+            rules = [rule for rule in rules if rule.is_core == is_core]
         
         return rules
     

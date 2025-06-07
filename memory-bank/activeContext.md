@@ -14,6 +14,12 @@
 - ✅ **NEW**: Built multi-source loading with error isolation
 - ✅ **NEW**: Added comprehensive validation and statistics reporting
 - ✅ **NEW**: Successfully tested with existing YAML rules (5 rules loaded)
+- ✅ **NEW FEATURE**: Renamed `coreRule` to `is_core` in `AgentRule` model (boolean property).
+- ✅ **NEW FEATURE**: `YamlRuleLoader` now parses `is_core` (also checks `coreRule` for backward compatibility, defaults to `False`).
+- ✅ **NEW FEATURE**: `AgentRuleRepository`'s `get_rules_by_criteria` now supports filtering by `is_core`.
+- ✅ **NEW MCP TOOL**: `GetCoreRulesContent` - retrieves content for all rules where `is_core` is `True`.
+- ✅ **MCP TOOL UPDATE**: `GetAllRulesMetadata` now excludes rules where `is_core` is `True`.
+- ✅ **REMOVED MCP TOOL**: `GetCoreRulesMetadata` was removed.
 
 ## Next Steps
 
@@ -48,6 +54,7 @@
 - **YAML-Only Support**: Focused implementation as requested
 - **In-Memory Repository**: Simple dictionary-based storage for fast access
 - **Extensible Design**: Easy to add new source types in future
+- **Core Rule Support**: New `is_core` flag allows for always-loaded rules, with dedicated MCP tools for access.
 
 ### Refactoring Results
 - **Memory Efficiency**: Content loaded only when needed
@@ -58,7 +65,7 @@
 ## Important Patterns and Preferences
 - **Metadata-First Design**: AgentRule contains only metadata fields
 - **Lazy Loading**: Content loaded on-demand via `load_content()` method
-- **YAML Structure**: Supports existing format (id, description, language, tags, rule)
+- **YAML Structure**: Supports existing format (id, description, language, tags, rule) and new optional `is_core` (boolean, with `coreRule` for backward compatibility).
 - **Repository Pattern**: Clean separation between storage and business logic
 - **Error Handling**: Comprehensive exception handling for file operations
 
@@ -75,6 +82,7 @@
 - **Content Access**: On-demand loading from YAML files working
 - **Filtering**: By tags, language, description search all functional
 - **Memory Management**: Only metadata kept in memory until content needed
+- **Core Rule Management**: Dedicated tools for accessing core rules and their content.
 
 ### Architecture Benefits
 - **Scalable**: Can handle large numbers of rules efficiently

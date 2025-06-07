@@ -26,7 +26,7 @@ mcp = FastMCP("cotextual-agent-rules-hub")
 
 @mcp.tool()
 async def GetAllRulesMetadata(contextFilter: Optional[str] = None) -> str:
-    """Get metadata for all rules in the index. Optionally filter by context."""
+    """Get metadata for all non-core rules in the index. Optionally filter by context. Core rules are excluded."""
     try:
         # Initialize rule system if needed
         rule_system.initialize()
@@ -84,6 +84,17 @@ async def GetAllContexts() -> str:
     except Exception as e:
         logger.error(f"Error in GetAllContexts: {e}")
         return f"Error retrieving contexts: {str(e)}"
+
+@mcp.tool()
+async def GetCoreRulesContent() -> str:
+    """Get content for all core rules in the index. Returns a list of strings."""
+    try:
+        rule_system.initialize()
+        content_list = rule_system.get_core_rules_content()
+        return json.dumps(content_list, indent=2) # Return as a JSON array of strings
+    except Exception as e:
+        logger.error(f"Error in GetCoreRulesContent: {e}")
+        return f"Error retrieving core rules content: {str(e)}"
 
 # Initialize rule system when module is loaded
 try:

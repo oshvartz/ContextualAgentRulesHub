@@ -18,6 +18,7 @@ class AgentRule:
         tags: List of tags for categorization and filtering
         content_source: RuleContentSource for on-demand content loading
         context: Optional context the rule applies to (e.g., project name)
+        is_core: Optional boolean indicating if this is a core rule, defaults to False
     """
     rule_id: str
     description: str
@@ -25,6 +26,7 @@ class AgentRule:
     tags: List[str]
     content_source: RuleContentSource
     context: Optional[str] = None
+    is_core: Optional[bool] = False
     
     def __post_init__(self):
         """Validate rule data after initialization."""
@@ -86,4 +88,5 @@ class AgentRule:
     def __repr__(self) -> str:
         """Developer representation of the rule."""
         return (f"AgentRule(rule_id='{self.rule_id}', description='{self.description}', "
-                f"language='{self.language}', tags={self.tags}, context='{self.context}')")
+                f"language='{self.language}', tags={self.tags}, context='{self.context}', "
+                f"is_core={self.is_core})")

@@ -2,10 +2,17 @@
 
 ## What Works
 - **MCP Server Infrastructure**: Existing MCP server is operational and accessible
-- **Rule Storage**: 4 rules are currently stored and retrievable via MCP tools
-- **Rule Metadata**: Complete metadata structure with IDs, descriptions, languages, and tags
-- **Documentation**: Comprehensive Memory Bank established
-- **Python Data Model System**: ✅ COMPLETE Phase 1 implementation
+- **Rule Storage**: Rules are stored and retrievable via MCP tools.
+- **Rule Metadata**: Complete metadata structure including IDs, descriptions, languages, tags, context, and the new `is_core` flag.
+- **Core Rule Functionality**:
+    - `AgentRule` model supports `is_core` (boolean, defaults to `False`).
+    - `YamlRuleLoader` parses `is_core` from YAML files (with `coreRule` for backward compatibility).
+    - `AgentRuleRepository` allows filtering by `is_core`.
+    - New MCP Tool `GetCoreRulesContent`: Retrieves content for core rules.
+    - MCP Tool `GetAllRulesMetadata` now excludes core rules.
+    - Removed MCP Tool `GetCoreRulesMetadata`.
+- **Documentation**: Comprehensive Memory Bank established and updated for `is_core` feature.
+- **Python Data Model System**: ✅ COMPLETE Phase 1 implementation, now enhanced with core rule support.
 
 ### Operational Rules (Legacy MCP Server)
 1. **csharp-standards-rule**: C# coding standards and best practices
@@ -70,6 +77,12 @@
 - ✅ Text search in descriptions
 - ✅ Multi-source architecture ready for expansion
 - ✅ Error handling and validation
+- ✅ **NEW**: `is_core` property in `AgentRule` model (renamed from `coreRule`).
+- ✅ **NEW**: `YamlRuleLoader` supports `is_core` (and `coreRule` for backward compatibility).
+    - ✅ **NEW**: `AgentRuleRepository` filters by `is_core`.
+    - ✅ **NEW**: MCP Tool `GetCoreRulesContent`.
+    - ✅ **UPDATED**: MCP Tool `GetAllRulesMetadata` excludes core rules.
+    - ✅ **REMOVED**: MCP Tool `GetCoreRulesMetadata`.
 
 ## Phase 1 Implementation Summary
 

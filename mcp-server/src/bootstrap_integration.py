@@ -16,7 +16,6 @@ from src.bootstrap.agent_rules_bootstrapper import AgentRulesBootstrapper
 from src.repository.agent_rule_repository import AgentRuleRepository
 from src.models.agent_rule import AgentRule
 
-
 class RuleSystemIntegration:
     """
     Integration layer for connecting MCP server to existing rule system.
@@ -76,6 +75,9 @@ class RuleSystemIntegration:
         metadata_list = []
         
         for rule in rules:
+            if rule.is_core:  # Exclude core rules
+                continue
+            
             # Get source info from the rule's content source
             source_info = rule.get_content_source_info()
             
@@ -178,6 +180,32 @@ class RuleSystemIntegration:
         
         return self._repository.rule_exists(rule_id)
 
+    def get_core_rules_content(self) -> List[str]:
+        """
+        Get content for all core rules in the repository.
+        
+        Returns:
+            List of core rule content strings
+            
+        Raises:
+            Exception: If repository is not initialized or content loading fails
+        """
+        if not self._initialized:
+            self.initialize()
+
+        if not self._repository:
+            raise Exception("Repository not initialized")
+
+        core_rules = self._repository.get_rules_by_criteria(is_core=True)
+        content_list = []
+        for rule in core_rules:
+            try:
+                content_list.append(rule.load_content())
+            except Exception as e:
+                # Optionally log or handle individual content loading errors
+                print(f"Warning: Failed to load content for core rule '{rule.rule_id}': {str(e)}")
+                # Decide if you want to skip or raise an error for the whole operation
+        return content_list
 
 # Global instance for the MCP server
 rule_system = RuleSystemIntegration()
