@@ -1,4 +1,4 @@
-# ContextualAgentRulesHub
+# Contextual Agent Rules Hub
 
 ## Overview
 
@@ -6,7 +6,7 @@
 
 ## Motivation
 
-Managing agent rules effectively can be challenging. Sharing rules across different agents or projects often leads to inconsistencies and difficulties in maintaining a centralized rule set. Furthermore, AI agents often operate with limited context windows. Sending a large, undifferentiated set of rules can consume valuable context space. AgentRulesHub aims to address these issues by:
+Managing agent rules effectively can be challenging. Sharing rules across different agents or projects often leads to inconsistencies and difficulties in maintaining a centralized rule set. Furthermore, AI agents often operate with limited context windows. Sending a large, undifferentiated set of rules can consume valuable context space. ContextualAgentRulesHub aims to address these issues by:
 
 -   Providing a structured way to organize and access rules.
 -   Enabling agents to retrieve only the rules relevant to their current task, thus minimizing context length and improving efficiency.
@@ -25,7 +25,7 @@ Managing agent rules effectively can be challenging. Sharing rules across differ
 
 ## Task Flow
 
-This section describes the typical flow of an AI agent interacting with the AgentRulesHub MCP server to retrieve and utilize rules for a given task.
+This section describes the typical flow of an AI agent interacting with the ContextualAgentRulesHub MCP server to retrieve and utilize rules for a given task.
 
 1.  **Task Initiation**: An agent (e.g., Cline) begins a new task with an optional context (e.g., "TheProject" for a specific project).
 2.  **Retrieve Core Rules Content**: The agent queries the `GetCoreRulesContent` tool. If any core rules exist, their content is retrieved and applied as foundational guidelines for the task.
@@ -38,7 +38,7 @@ This section describes the typical flow of an AI agent interacting with the Agen
 ```mermaid
 sequenceDiagram
     participant Agent
-    participant RulesHubServer as "rules-hub MCP Server"
+    participant RulesHubServer as "ContextualAgentRulesHub MCP Server"
 
     Agent->>RulesHubServer: 1. Request: GetCoreRulesContent
     RulesHubServer-->>Agent: 2. Response: Core Rules Content (if any)
